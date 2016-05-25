@@ -17,7 +17,7 @@ def aggregate_frame_predictions(frame_predictions):
       aggregate_probabilities[i] += label_distribution[i]
   # find the label with largest aggregate probability
   best_label = (0, aggregate_probabilities[0])
-  for i in xrange(1, len(aggregate_probabilies)):
+  for i in xrange(1, len(aggregate_probabilities)):
     if aggregate_probabilities[i] > best_label[1]:
       best_label = (i, aggregate_probabilities[i])
   return best_label[0]
