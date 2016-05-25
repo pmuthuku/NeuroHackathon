@@ -37,31 +37,3 @@ frames = enframe(upstate_waveform, window_size, window_shift);
 %disp(size(frames));
 
 end
-
-function frames = enframe(waveform, window_size, window_shift)
-% Breaks waveform into frames
-
-k = 1; i = 1;
-frames = [];
-
-while(k + window_size <= length(waveform))
-    frame = waveform(k:k+window_size-1);
-    k = k + window_shift;
-    i = i + 1;
-    
-    %disp(length(frame));
-    frames = [frames; frame];
-    
-    %plot(frame);
-    %pause(1);
-end
-
-% Get last frame here
-if k < length(waveform)
-    frame = waveform(k:end);
-    frame = [frame zeros(1,window_size-length(frame))];
-    
-    frames = [frames; frame];
-end
-
-end
