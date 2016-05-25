@@ -1,33 +1,24 @@
 function frames = get_unlabeled_windowed_frames(upstate_vector)
 
+% Assumes start time is 1 second before first spike
 start_time = upstate_vector(1) - 1;
+
 lastspiketime = find(isnan(upstate_vector),1,'first') - 1;
 upstate_time = upstate_vector(lastspiketime) - start_time;
 
 sample_shift = 0.004; %4ms measurement interval
 
-time_intervals = 0:sample_shift:upstate_time;
+time_intervals = 0:sample_shift:(upstate_time+0.5);
 
-upstate_waveform = zeros(1, length(time_intervals)+1);
-% upstate_waveform = upstate_vector;
-% start_time = 0;
+upstate_waveform = zeros(1, length(time_intervals));
+
 
 upstate_vector(isnan(upstate_vector)) = [];
 spike_sample = round((upstate_vector - start_time)/sample_shift);
 upstate_waveform(spike_sample) = 1;
-% for j = 1:length(upstate_vector)
-%     if isnan(upstate_vector(j))
-%         continue;
-%     end
-%     spike_time = (upstate_vector(j) - start_time);
-%     spike_sample = round(spike_time/sample_shift);
-%     
-%     upstate_waveform(spike_sample) = 1;
-%     
-% end
 
 % %debug
-% stem(time_intervals, upstate_waveform,'*');
+% stem(time_intervals, upstate_waveform);
 % pause(1);
 
 window_size = 1;    % 1 second
@@ -46,7 +37,7 @@ function frames = enframe(waveform, window_size, window_shift)
 % Breaks waveform into frames
 
 k = 1; i = 1;
-frames = [];
+frames = zeros(round(2*(length(waveform)/window_size))-2, window_size);
 
 while(k + window_size <= length(waveform))
     frame = waveform(k:k+window_size-1);
@@ -54,10 +45,11 @@ while(k + window_size <= length(waveform))
     i = i + 1;
     
     %disp(length(frame));
-    frames = [frames; frame];
+    frames(i,:) = frame;
     
-    %plot(frame);
-    %pause(1);
+%     plot(frame);
+%     title(i);
+%     pause(0.5);
 end
 
 % Get last frame here
