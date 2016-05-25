@@ -9,7 +9,7 @@ def aggregate_frame_predictions(frame_predictions):
   # gold annotations of all frames of the same neuron should match
   gold_label = frame_predictions[0][-1]
   # sum up the probabilities across all frames
-  aggregate_probabilites = [0.0 for i in xrange(len(frame_predictions[0])-1)]
+  aggregate_probabilities = [0.0 for i in xrange(len(frame_predictions[0])-1)]
   for frame_prediction in frame_predictions:
     assert frame_prediction[-1] == gold_label
     label_distribution = frame_prediction[:-1]
@@ -100,6 +100,7 @@ def load_dev():
   x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
   
   print 'dev files: ', ' '.join(dev_filenames)
+  print 'x.shape=', x.shape, ', y.shape=', y.shape, ', len(z)=', len(z)
   return (x, y, z)
 
 # returns a tuple (x, y, z). 
@@ -148,6 +149,6 @@ def load_test():
   x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
   
   print 'test files: ', ' '.join(test_filenames)
+  print 'x.shape=', x.shape, ', y.shape=', y.shape, ', len(z)=', len(z)
   return (x, y, z)
 
-load_unlabeled()
