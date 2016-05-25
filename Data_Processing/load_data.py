@@ -42,16 +42,17 @@ def load_unlabeled():
   frame_length = len(x_y_pairs[0][0])
   labels_count = len(filenames)
 
-  x, y = [], []
+  x, y, z = [], []
   for i in xrange(frames_count):
     x.extend(x_y_pairs[i][0])
     label = np.zeros( (1,labels_count) )
     label[ 0][filenames.index(x_y_pairs[i][1]) ] = 1
     y.extend(label)
+    z.append(x_y_pairs[i][1])
 
   x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
 
-  return (x, y)
+  return (x, y, z)
 
 # returns a tuple (x, y, z). 
 # x is a features matrix, where each row represents features of a frame
@@ -149,4 +150,4 @@ def load_test():
   print 'test files: ', ' '.join(test_filenames)
   return (x, y, z)
 
-load_test()
+load_unlabeled()
