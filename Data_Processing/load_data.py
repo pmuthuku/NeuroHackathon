@@ -42,7 +42,7 @@ def load_unlabeled():
   frame_length = len(x_y_pairs[0][0])
   labels_count = len(filenames)
 
-  x, y, z = [], []
+  x, y, z = [], [], []
   for i in xrange(frames_count):
     x.extend(x_y_pairs[i][0])
     label = np.zeros( (1,labels_count) )
