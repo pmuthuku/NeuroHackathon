@@ -22,7 +22,7 @@ end
 % Remember to do something about the empty frames
 
 
-%% Pyr frames
+%% Pyr data
 
 Pyr_spiketimes = load('../Data/InVitro/Pyr_spiketimes.mat');
 
@@ -40,5 +40,19 @@ for i = 1:size(Pyr_spiketimes.M, 2)
 end
 
 
+%% SST data
 
+SST_spiketimes = load('../Data/InVitro/SST_spiketimes.mat');
+
+SST_frames = [];
+
+for i = 1:size(SST_spiketimes.M, 2)
+    
+    if(~isnan(SST_spiketimes.M(1,i)))
+        frames = get_SST_windowed_frames(SST_spiketimes.M(:,i));
+    end
+    
+    SST_frames = [SST_frames; frames];
+    
+end
 
