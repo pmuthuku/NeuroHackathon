@@ -2,24 +2,40 @@ import scipy.io
 import numpy as np
 import os
 
-def load_dev():
+# given frame-level predictions of a neuron, pedict one label for the neuron
+def aggregate_frame_predictions(frame_predictions):
+  # there must be at least one frame for each neuron
+  assert(len(frame_predictions) > 0)
+  # gold annotations of all frames of the same neuron should match
+  gold_label = frame_predictions[0][-1]
+  # sum up the probabilities across all frames
+  aggregate_probabilites = [0.0 for i in xrange(len(frame_predictions[0])-1)]
+  for frame_prediction in frame_predictions:
+    assert frame_prediction[-1] == gold_label
+    label_distribution = frame_prediction[:-1]
+    for i in xrange(len(label_distribution)):
+      aggregate_probabilities[i] += label_distribution[i]
+  # find the label with largest aggregate probability
+  best_label = (0, aggregate_probabilities[0])
+  for i in xrange(1, len(aggregate_probabilies)):
+    if aggregate_probabilities[i] > best_label[1]:
+      best_label = (i, aggregate_probabilities[i])
+  return best_label[0]
+
+# load labeled examples for train/dev
+def load_dev2():
   x_y_pairs = []
-  labeled_frames_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'all_frames.mat')
+  labeled_frames_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Data', 'all_frames.mat')
   frames = scipy.io.loadmat(labeled_frames_filename)
-  #print frames.keys()
   unique_labels = ['PV_frames', 'Pyr_frames', 'SST_frames']
   for label in unique_labels:
-    #print label, len(frames[label])
     for frame_index in xrange(len(frames[label])):
       x_y_pairs.append( (frames[label][frame_index], label,) )
 
   frames_count = len(x_y_pairs)
+  assert(len(x_y_pairs) > 0)
   frame_length = len(x_y_pairs[0][0])
   labels_count = len(unique_labels)
-
-  #print 'frames_count=', frames_count
-  #print 'frame_length= ', frame_length
-  #print 'labels_count=', labels_count
 
   x, y = [], []
   effective_frames_count = 0 
@@ -27,23 +43,18 @@ def load_dev():
     if i%4 == 0 or i %4 == 1: continue
     effective_frames_count += 1
     x.extend(x_y_pairs[i][0])
-    #if i % 100 == 0: print i, x_y_pairs[i][1], unique_labels.index(x_y_pairs[i][1])
     label = np.zeros( (1,labels_count) )
     label[0][unique_labels.index(x_y_pairs[i][1]) ] = 1
     y.extend(label)
 
-  #print 'len(x)=', len(x)
-  #print 'len(y)=', len(y)
   x, y = np.matrix(x).reshape( (effective_frames_count, frame_length, 1) ), np.matrix(y).reshape( (effective_frames_count, labels_count, 1) )
-
-  #print 'x.shape = ', x.shape
-  #print 'y.shape = ', y.shape
 
   return (x, y)
 
-def load_test():
+# load labeled examples for test
+def load_test2():
   x_y_pairs = []
-  labeled_frames_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'all_frames.mat')
+  labeled_frames_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'Data', 'all_frames.mat')
   frames = scipy.io.loadmat(labeled_frames_filename)
   unique_labels = ['PV_frames', 'Pyr_frames', 'SST_frames']
   for label in unique_labels:
@@ -53,10 +64,6 @@ def load_test():
   frames_count = len(x_y_pairs)
   frame_length = len(x_y_pairs[0][0])
   labels_count = len(unique_labels)
-
-  #print 'frames_count=', frames_count
-  #print 'frame_length= ', frame_length
-  #print 'labels_count=', labels_count
 
   x, y = [], []
   effective_frames_count = 0 
@@ -68,12 +75,7 @@ def load_test():
     label[ 0][unique_labels.index(x_y_pairs[i][1]) ] = 1
     y.extend(label)
 
-  #print 'len(x)=', len(x)
-  #print 'len(y)=', len(y)
   x, y = np.matrix(x).reshape( (effective_frames_count, frame_length) ), np.matrix(y).reshape( (effective_frames_count, labels_count) )
-
-  #print 'x.shape = ', x.shape
-  #print 'y.shape = ', y.shape
 
   return (x, y)
 
@@ -102,18 +104,93 @@ def load_unlabeled():
 
   x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
 
-  #print 'x.shape = ', x.shape
-  #print 'y.shape = ', y.shape
-
   return (x, y)
 
-#load_unlabeled()
-#load_test()
-#x, y =load_dev()
 
-#for i in xrange(len(y)):
-#  print y[i]
+def load_dev():
+  dev_filenames = []
+  unique_labels = set()
+  x_y_pairs = []
+  unlabeled_subdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'training_data')
+  files_counter = 0
+  for filename in os.listdir(unlabeled_subdir):
+    # skip non .mat files
+    if not filename.endswith('.mat'): continue
+    # skip even files
+    files_counter += 1
+    if files_counter % 2 == 0: 
+      continue
+    
+    # use filename prefix as label (e.g., PV, Pyr, SST)
+    dev_filenames.append(filename)
+    label = filename.split('_')[0]
+    unique_labels.add(label)
 
-#print 'y[0]=', y[0]
-#print 'y[',len(y)-1,']=', y[len(y)-1]
-#print 'y[',len(y)/2,']=', y[len(y)/2]
+    # extract frames of this neuron
+    frames = scipy.io.loadmat(os.path.join(unlabeled_subdir, filename))
+    frames = frames['frames']
+    for frame_index in range(len(frames)):
+      x_y_pairs.append( (frames[frame_index], label, filename) )
+
+  frames_count = len(x_y_pairs)
+  assert(len(x_y_pairs) > 0)
+  frame_length = len(x_y_pairs[0][0])
+  unique_labels = list(unique_labels)
+  labels_count = len(unique_labels)
+
+  x, y = [], []
+  for i in xrange(frames_count):
+    x.extend(x_y_pairs[i][0])
+    label = np.zeros( (1,labels_count) )
+    label[0][unique_labels.index(x_y_pairs[i][1]) ] = 1
+    y.extend(label)
+
+  x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
+  
+  print 'dev files: ', ' '.join(dev_filenames)
+  return (x, y)
+
+def load_test():
+  test_filenames = []
+  unique_labels = set()
+  x_y_pairs = []
+  unlabeled_subdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'training_data')
+  files_counter = 0
+  for filename in os.listdir(unlabeled_subdir):
+    # skip non .mat files
+    if not filename.endswith('.mat'): continue
+    # skip even files
+    files_counter += 1
+    if files_counter % 2 == 1: 
+      continue
+    
+    # use filename prefix as label (e.g., PV, Pyr, SST)
+    test_filenames.append(filename)
+    label = filename.split('_')[0]
+    unique_labels.add(label)
+
+    # extract frames of this neuron
+    frames = scipy.io.loadmat(os.path.join(unlabeled_subdir, filename))
+    frames = frames['frames']
+    for frame_index in range(len(frames)):
+      x_y_pairs.append( (frames[frame_index], label, filename) )
+
+  frames_count = len(x_y_pairs)
+  assert(len(x_y_pairs) > 0)
+  frame_length = len(x_y_pairs[0][0])
+  unique_labels = list(unique_labels)
+  labels_count = len(unique_labels)
+
+  x, y = [], []
+  for i in xrange(frames_count):
+    x.extend(x_y_pairs[i][0])
+    label = np.zeros( (1,labels_count) )
+    label[0][unique_labels.index(x_y_pairs[i][1]) ] = 1
+    y.extend(label)
+
+  x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
+  
+  print 'test files: ', ' '.join(test_filenames)
+  return (x, y)
+
+load_test()
