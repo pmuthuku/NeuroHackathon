@@ -34,6 +34,7 @@ for split in ['dev', 'test']:
   neuron_gold = {}
   current_neuron_frames = []
   correct_predictions, all_predictions = 0.0, 0.0
+  confusion_matrix = defaultdict(float)
   for i in xrange(len(frame_predictions)):
     if i >= len(neuron_ids): break
     frame_prediction = frame_predictions[i]
@@ -49,6 +50,7 @@ for split in ['dev', 'test']:
       # evaluate this instance
       all_predictions += 1
       if neuron_prediction[neuron_id] == neuron_gold[neuron_id]: correct_predictions += 1
+      confusion_matrix[ (int(neuron_gold[neuron_id]), int(neuron_prediction[neuron_id])) ] += 1.0
     prev_neuron_id = neuron_id
     current_neuron_frames.append(frame_prediction)
   
@@ -56,5 +58,21 @@ for split in ['dev', 'test']:
   for neuron_id in neuron_prediction.keys():
     print 'neuron_id={}, gold={}, predicted={}'.format(neuron_id, neuron_gold[neuron_id], neuron_prediction[neuron_id])
 
+  # print the confusion matrix
+  print
+  print 'confusion matrix'
+  print confusion_matrix
+
+  # class level accuracy
+  print
+  for gold_label in range(3):
+    local_correct, local_all = 0.0, 0.0
+    for (gold, predicted) in confusion_matrix:
+      if gold != gold_label: continue
+      local_all += confusion_matrix[(gold, predicted)]
+      if predicted == gold: local_correct += confusion_matrix[(gold, predicted)]
+    print 'accuracy of class {} = {}% ({} correct out of {})'.format(gold_label, local_correct / local_all * 100, local_correct, local_all)
+
   # report accuracy
+  print
   print 'accuracy: {}% ({} correct out of {})'.format(100 * correct_predictions / all_predictions, correct_predictions, all_predictions)
