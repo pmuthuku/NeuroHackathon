@@ -1,16 +1,44 @@
 clear; clc;
 
+
+%% PV data
+
 PV_spiketimes = load('../Data/InVitro/PV_spiketimes.mat');
 
 PV_frames = [];
+
 % Each column of PV_spiketimes.M is an upstate of neurons firing.
-% I'm going to treat this as one frame.
 for i = 1:size(PV_spiketimes.M, 2)
     
     if(~isnan(PV_spiketimes.M(1,i))) %NaNs denote boundaries
-        frames = get_windowed_frames(PV_spiketimes.M(:,i));
+        frames = get_PV_windowed_frames(PV_spiketimes.M(:,i));
     end
     
     PV_frames = [PV_frames; frames];
     
 end
+
+
+% Remember to do something about the empty frames
+
+
+%% Pyr frames
+
+Pyr_spiketimes = load('../Data/InVitro/Pyr_spiketimes.mat');
+
+Pyr_frames = [];
+
+% Each column of Pyr_spiketimes.M is an upstate
+for i = 1:size(Pyr_spiketimes.M, 2)
+   
+    if(~isnan(Pyr_spiketimes.M(1,i))) 
+       frames = get_Pyr_windowed_frames(Pyr_spiketimes.M(:,i)); 
+    end
+    
+    Pyr_frames = [Pyr_frames; frames];
+    
+end
+
+
+
+

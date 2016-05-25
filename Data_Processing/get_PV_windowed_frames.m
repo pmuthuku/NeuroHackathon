@@ -1,4 +1,4 @@
-function frames = get_windowed_frames(upstate_vector)
+function frames = get_PV_windowed_frames(upstate_vector)
 % Converts spike times into a spike waveform and
 % breaks waveform into frames
 
