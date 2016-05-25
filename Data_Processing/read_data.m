@@ -21,7 +21,6 @@ end
 
 % Remember to do something about the empty frames
 
-
 %% Pyr data
 
 Pyr_spiketimes = load('../Data/InVitro/Pyr_spiketimes.mat');
@@ -39,7 +38,6 @@ for i = 1:size(Pyr_spiketimes.M, 2)
     
 end
 
-
 %% SST data
 
 SST_spiketimes = load('../Data/InVitro/SST_spiketimes.mat');
@@ -55,4 +53,6 @@ for i = 1:size(SST_spiketimes.M, 2)
     SST_frames = [SST_frames; frames];
     
 end
+
+save('all_frames.mat', 'PV_frames', 'Pyr_frames', 'SST_frames');
 
