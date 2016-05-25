@@ -1,6 +1,7 @@
 import scipy.io
 import numpy as np
 import os
+import sys
 
 # given frame-level predictions of a neuron, pedict one label for the neuron
 def aggregate_frame_predictions(frame_predictions):
@@ -98,9 +99,9 @@ def load_dev():
     z.append(x_y_pairs[i][2])
 
   x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
-  
-  print 'dev files: ', ' '.join(dev_filenames)
-  print 'x.shape=', x.shape, ', y.shape=', y.shape, ', len(z)=', len(z)
+
+#  print >> sys.stderr,  'dev files: ', ' '.join(dev_filenames)
+#  print >> sys.stderr, 'x.shape=', x.shape, ', y.shape=', y.shape, ', len(z)=', len(z)
   return (x, y, z)
 
 # returns a tuple (x, y, z). 
@@ -148,7 +149,7 @@ def load_test():
 
   x, y = np.asarray(np.matrix(x).reshape( (frames_count, frame_length) ), dtype=float), np.asarray(np.matrix(y).reshape( (frames_count, labels_count) ), dtype=bool)
   
-  print 'test files: ', ' '.join(test_filenames)
-  print 'x.shape=', x.shape, ', y.shape=', y.shape, ', len(z)=', len(z)
+#  print >> sys.stderr, 'test files: ', ' '.join(test_filenames)
+#  print >> sys.stderr, 'x.shape=', x.shape, ', y.shape=', y.shape, ', len(z)=', len(z)
   return (x, y, z)
 
