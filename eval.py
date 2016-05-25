@@ -17,7 +17,7 @@ print predictions.keys()
 
 dev_predictions, test_predictions = predictions['val'], predictions['test']
 
-for split in ['test', 'dev']:
+for split in ['dev', 'test']:
 
   # read model predictions
   frame_predictions = dev_predictions if split == 'dev' else test_predictions

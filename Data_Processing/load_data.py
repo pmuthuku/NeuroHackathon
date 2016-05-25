@@ -64,7 +64,7 @@ def load_dev():
   x_y_pairs = []
   unlabeled_subdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'training_data')
   files_counter = 0
-  for filename in os.listdir(unlabeled_subdir):
+  for filename in sorted(os.listdir(unlabeled_subdir)):
     # skip non .mat files
     if not filename.endswith('.mat'): continue
     # skip even files
@@ -113,7 +113,7 @@ def load_test():
   x_y_pairs = []
   unlabeled_subdir = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'training_data')
   files_counter = 0
-  for filename in os.listdir(unlabeled_subdir):
+  for filename in sorted(os.listdir(unlabeled_subdir)):
     # skip non .mat files
     if not filename.endswith('.mat'): continue
     # skip even files
